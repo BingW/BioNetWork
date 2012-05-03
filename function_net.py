@@ -30,7 +30,7 @@ ID2Interact = {}
 #ID2Interact[ID_B][ID_H] = [["Bait_Hit","Genetic",ExpType,Phenotype],...]
 for line in f:
     elements = line.split("\t")
-    inter_type = "G" if elements[5] == "genetic interaction" else "P"
+    inter_type = "G" if elements[5] == "genetic interactions" else "P"
     if elements[0] in other2ID and elements[2] in other2ID:
         ID_B = other2ID[elements[0]]
         ID_H = other2ID[elements[2]]
@@ -121,7 +121,7 @@ for ID in ID2Feature:
 #ID2Interact[ID_B][ID_H] = [["Bait_Hit","Genetic",ExpType,Phenotype],...]
     name = ID2Feature[ID][1] if ID2Feature[ID][1] != "" else ID2Feature[ID][0]
     #condition = True 
-    condition = name != ""
+    condition = (name != "")# and ID2Feature[ID][2] == "not physically mapped")
     #standard_name if has standard_name else system_name
     if condition:
         f.write(name+":\t\n")
