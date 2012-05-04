@@ -15,28 +15,37 @@ for thing in folder:
     #os.system(cmd)
     if thing.count("PMID") == 1:
         pcl_path.append(thing[:thing.rfind("/")])
-'''
+
+
 for pcl_p in pcl_path:
     has = os.listdir("/Users/bingwang/VimWork/db/Microarray"+ \
         pcl_p[pcl_p.rfind("/"):])
-    if len(has) > 1:
-        print "exists"
-        continue
-    br.open(pcl_p+"/"+"README")
-    R = open("/Users/bingwang/VimWork/db/Microarray"+ \
-        pcl_p[pcl_p.rfind("/"):]+"/README","w")
-    R.write(br.response().read())
-    sleep(1)
+    if "README" not in has:
+        br.open(pcl_p+"/"+"README")
+        R = open("/Users/bingwang/VimWork/db/Microarray"+ \
+            pcl_p[pcl_p.rfind("/"):]+"/README","w")
+        R.write(br.response().read())
+        sleep(1)
+    else:
+        print "README exists"
     br.open(pcl_p)
+    pcl_file_link = []
     for l in br.links():
         if l.url.endswith(".pcl"):
-            pcl_file = "/Users/bingwang/VimWork/db/Microarray"+\
-                    pcl_p[pcl_p.rfind("/"):]+"/"+l.url
-            print pcl_file
-            P = open(pcl_file,"w")
-            br.open(pcl_p+"/"+l.url)
+            pcl_file_link.append(l.url)
+    for url in pcl_file_link:
+        if url not in has:
+            pcl_write = "/Users/bingwang/VimWork/db/Microarray"+\
+                    pcl_p[pcl_p.rfind("/"):]+"/"+url
+            print pcl_write
+            P = open(pcl_write,"w")
+            br.open(pcl_p+"/"+url)
             P.write(br.response().read())
             sleep(1)
+        else:
+            print url,"exists"
+
+
 '''
 br.open("http://downloads.yeastgenome.org/expression/microarray/archive/Expression_connection_data/")
 pcl_file = []
@@ -50,7 +59,7 @@ for link in pcl_file:
     f.write(br.response().read())
     print link,"finish"
     sleep(1)
-
+'''
 '''
 def downloadlink(l):
     f=open(l.text,"w") #perhaps you should open in a better way & ensure that file doesn't already exist.
