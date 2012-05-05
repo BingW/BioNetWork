@@ -3,35 +3,6 @@ import os
 import numpy
 import math
 
-
-def ID_initial():
-    _f = open("/Users/bingwang/VimWork/db/SGD_features.tab")
-    _other2ID = {}
-    #other2ID[other] = ID
-    _ID2Feature = {}
-    #ID2Feature[ID] = [feature_name,stardand_name,Type,Description]
-    for _line in _f:
-        _elements = _line.split("\t")
-        try:
-            _other2ID[_elements[0]]
-            _other2ID[_elements[3]]
-            _other2ID[_elements[4]]
-            for _name in _elements[5].split("\t"):
-                _other2ID[_name]
-            for _name in _elements[8].split("\t"):
-                _other2ID[name]
-            print "ID:",_elements[0],"exist @:",_other2ID[_elements[0]]
-        except:
-            _ID2Feature[_elements[0]] = [_elements[3],_elements[4],_elements[1],_elements[15].strip()]
-            _other2ID[_elements[0]] = _elements[0]
-            _other2ID[_elements[3]] = _elements[0]
-            _other2ID[_elements[4]] = _elements[0]
-            for _name in _elements[5].split("\t"):
-                _other2ID[_name] = _elements[0]
-            for _name in _elements[8].split("\t"):
-                _other2ID[_name] = _elements[0]
-    return _other2ID,_ID2Feature
-
 def float_dict(_dict):
     _out = []
     for _num in _dict:
@@ -63,64 +34,55 @@ def check_file_log_status(filename):
             _flag = True
     return _flag
 
-#in_file = "/Users/bingwang/VimWork/db/Microarray/Abbott_2008_PMID_18676708/GSE10066_setA_family.pcl"
-#out_file = "/Users/bingwang/VimWork/test.pcl"
-#in_dict = float_dict(["empty","4.1","4.2","4.0","3.9","3.7","3.9","3.8"])
-#aft_log = log_transmit(in_dict)
-#print in_dict
-#print aft_log
-#print is_log_transmit(in_dict)
-#print is_log_transmit(aft_log)
-Microarray_Path = "/Users/bingwang/VimWork/db/Microarray/"
-other2ID,ID2Feature = ID_initial()
-ID2Expression = {}
-#ID2Expression[ID][condition] = experssion
-condition2PMID = {}
-PMID2Readme = {} 
-for data_set in os.listdir(Microarray_Path):
-    if data_set.count("PMID") == 0:
-        continue
-    PMID = data_set.split("_")[-1]
-    f = open(Microarray_Path+data_set+"/README")
-    PMID2Readme[PMID] = f.read()
-    pclfiles = [pcl for pcl in os.listdir(Microarray_Path+data_set) if pcl.endswith(".pcl")]
-    for i,pclfile in enumerate(pclfiles):
-        if check_file_log_status(Microarray_Path+data_set+"/"+pclfile):
-            try:
-                open(Microarray_Path+"archave/"+PMID+"_"+i+".pcl")
-            except:
-                g = open(Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl","w")
-                f = open(Microarray_Path+data_set+"/"+pclfile)
-                g.write(f.read())
-        else:
-            try:
-                open(Microarray_Path+"archave/"+PMID+"_"+i+".pcl")
-            except:
-                f = open(Microarray_Path+data_set+"/"+pclfile)
-                g = open(Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl","w")
-                g.write(f.readline())
-                g.write(f.readline())
-                for line in f:
-                    m_array = line.replace("\n","").replace("\r","").split("\t")
-                    for item in m_array[:3]:
-                        g.write(item+"\t")
-                    m_array = log_transmit(float_dict(m_array[3:]))
-                    for num in m_array[:-1]:
-                        g.write(str(num)+"\t")
-                    g.write(str(m_array[-1])+"\n")
-        
+def log_file(in_file,out_file=None):
+    if out_file == None:
+        out_file = in_file+".log"
+    _f = open(in_file)
+    _g = open(out_file,"w")
+    _g.write(f.readline())
+    _g.write(f.readline())
+    for _line in _f:
+        _m_array = _line.replace("\n","").replace("\r","").split("\t")
+        for _item in _m_array[:3]:
+            _g.write(_item+"\t")
+        _m_array = log_transmit(float_dict(_m_array[3:]))
+        for _num in _m_array[:-1]:
+            _g.write(str(_num)+"\t")
+        _g.write(str(_m_array[-1])+"\n")
+    return True
 
-'''
-        column = f.readline().strip().split("\t")
-        f.readline() #skip GWEIGHT line
-        for line in f:
-            line = line.replace("\n","").replace("\r","") #DO NOT use strip()
-            elements = line.split("\t")
-            if elements[0] != "":
-                PMID2Expression[PMID][i][elements[0]]=elements[3:]
+def save_dict(dict_0,out_file):
+    _f = open(out_file,"w")
+    for _item in dict_0:
+        _f.write(">"+_item+"\n")
+        _f.write(dict_0[_item])
+
+if __name__ == "__main__":
+    Microarray_Path = "/Users/bingwang/VimWork/db/Microarray/"
+    PMID2Readme = {} 
+    for data_set in os.listdir(Microarray_Path):
+        if data_set.count("PMID") == 0:
+            continue
+        PMID = data_set.split("_")[-1]
+        f = open(Microarray_Path+data_set+"/README")
+        PMID2Readme[PMID] = f.read()
+
+        pclfiles = [pcl for pcl in os.listdir(Microarray_Path+data_set) if pcl.endswith(".pcl")]
+        for i,pclfile in enumerate(pclfiles):
+            if check_file_log_status(Microarray_Path+data_set+"/"+pclfile):
+                try:
+                    open(Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl")
+                    print "existed\t"+Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl"
+                except:
+                    os.system("cp "+Microarray_Path+data_set+"/"+pclfile+" "+\
+                            Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl")
             else:
-                print line,"donot have name"
-            break
-        #print "/Users/bingwang/VimWork/db/Microarray_archive/PMID_"+PMID+"_"+str(i)+".pcl"
-#print PMID2Readme["12058033"]
-'''
+                try:
+                    open(Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl")
+                    print "existed\t"+Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl"
+                except:
+                    in_file = Microarray_Path+data_set+"/"+pclfile
+                    out_file = Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl"
+                    if log_file(in_file,out_file):
+                        print "add\t"+Microarray_Path+"archive/"+PMID+"_"+str(i)+".pcl"
+    save_dict(PMID2Readme,Microarray_Path+"archive/"+"README")
