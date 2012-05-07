@@ -138,13 +138,13 @@ for ID in ID2Feature:
                 f.write("\t#Product\t"+product+"\n")
         if ID in ID2slim_GO:
             for GO_ID in sorted(ID2slim_GO[ID]):
-                if GO_ID2term[GO_ID][1] not in H_Type:
-                    H_Type.append(GO_ID2term[GO_ID][1])
+                #if GO_ID2term[GO_ID][1] not in H_Type:
+                    #H_Type.append(GO_ID2term[GO_ID][1])
                 f.write("\t#GO:\t"+GO_ID2term[GO_ID][1]+"\t"+GO_ID2term[GO_ID][0]+"\t\n")
         if ID in ID2Pheno:
             for pheno in sorted(ID2Pheno[ID]):
-                if pheno[0] not in H_Type:
-                    H_Type.append(pheno[0])
+               # if pheno[0] not in H_Type:
+                   # H_Type.append(pheno[0])
                 f.write("\t#Phenotype:\t"+pheno[0]+"\t"+pheno[1]+"\t"+pheno[2]+"\n") 
         if ID in ID2Interact:
             #if name == "":
@@ -152,11 +152,9 @@ for ID in ID2Feature:
             for ID_B in ID2Interact[ID]:
                 name_B = ID2Feature[ID_B][1] if ID2Feature[ID_B][1] != "" else ID2Feature[ID_B][0]
                 for inter in sorted(ID2Interact[ID][ID_B]):
-                    if inter[0] not in H_Type:
-                        H_Type.append(inter[0])
+                  #  if inter[0] not in H_Type:
+                   #     H_Type.append(inter[0])
                     f.write("\t#Interaction\t"+name_B+"\t"+inter[0]+"\t"+\
                             inter[1]+"\t"+inter[2]+"\t"+inter[3]+"\n")
-
-
-
+print H_Type
 
