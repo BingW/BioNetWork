@@ -1,0 +1,9 @@
+TABLE microarray (SGDID,CID,EXP,EXP_bool)
+TABLE CID2condition (CID,condition) #CID = PMID_index_cindex
+TABLE PMID2readme (PMID,README)
+TABLE other2ID (other unique, SGDID)
+TABLE ID2Interact (SGDID_1, SGDID_2, InterType, ExpType, Phenotype)
+TABLE ID2Feature (SGDID, feature, stardand, Type, Descrip)
+TABLE ID2Product (SGDID, product)
+TABLE ID2Phenotype (SGDID, mutan_type, phenotype, chemical, condition, details, reporter)
+TABLE ID2GO (SGDID,GOID,slim,GO_Term,GO_Aspect,GO_Definition)
