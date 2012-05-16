@@ -52,16 +52,16 @@ for i,filename in enumerate(pclfiles):
         g.write(CID+"\t")
         for SGDID in ID_sum:
             if SGDID not in M_dict:
-                g.write("NA\t")
+                g.write("99\t")
             else:
                 #g.write(str(round(M_dict[SGDID][CID],2))+"\t")
                 if M_dict[SGDID][CID] >= 1:
                     g.write("1\t")
                 elif M_dict[SGDID][CID] <= -1:
-                    g.write("-1\t")
+                    g.write("2\t")
                 elif -1 < M_dict[SGDID][CID] < 1:
                     g.write("0\t")
                 else:
-                    g.write("NA\t")
+                    g.write("99\t")
         g.write("\n")
     print filename+" finished!  "+str((i+1)*1.0/len(pclfiles))+"% done!"
