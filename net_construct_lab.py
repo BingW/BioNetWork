@@ -4,7 +4,7 @@ import time
 
 def calculate_function(gene):
     def bayes_two_nodes():
-        M_array = np.zeros((8133,3),dtype = np.int8)
+        M_array = np.zeros((use_microarray_num,3),dtype = np.int8)
         M_array[:,0] = line_0 
         M_array[:,1] = line_1 
         M_array[:,2] = line_2
@@ -17,7 +17,7 @@ def calculate_function(gene):
         return count_array
   
     def bayes_one_nodes():
-        M_array = np.zeros((8133,2),dtype = np.int8)
+        M_array = np.zeros((use_microarray_num,2),dtype = np.int8)
         M_array[:,0] = line_0 
         M_array[:,1] = line_1
         count_array = np.zeros((3,2),dtype = int)
@@ -72,13 +72,22 @@ class gene_node():
         self.SGDID = ID
         self.input_nodes = [node for node in ID2input_dict[ID] if node != ID
                 and node in SGDID_list]
+        self.time = len(self.input_nodes) ** 2
         self.status = 0
 
 ####################
 ####    main    ####
 ####################
 lab_dict = "/Users/bingwang/VimWork/BioNetWork/"
-s = "2300_2400"
+p = 8
+
+p_dict = {1: "0_603", 2: "603_1204", 3: "1204_1662", \
+        4: "1662_2132", 5: "2132_2438", 6: "2438_3158", \
+        7: "3158_3654", 8: "3654_4183", 9: "4183_4633", \
+        10: "4633_5939"}
+
+s = p_dict[p]
+use_microarray_num = 1000 
 
 f = open(lab_dict+"SGD_features.tab")
 other2ID = {}
@@ -128,22 +137,24 @@ print "ID2input_dict init finish!"
 
 f = open(lab_dict+"ScerMicro_b.tab")
 SGDID_list = f.readline().split("\t")[1:-1] #because nothing after the last '\t'
-Microarray = np.zeros((8133,len(SGDID_list)),dtype = np.uint8)
+Microarray = np.zeros((use_microarray_num,len(SGDID_list)),dtype = np.uint8)
 for i,line in enumerate(f):
+    if i == use_microarray_num:
+        break
     elements = line.split("\t")[:-1] #because nothing after the last '\t'
     for j,num in enumerate(elements[1:]):
         Microarray[i,j] = num
     if i%20 == 0:
-        print "loding Microarray "+str(round(i*100.0/8134,2))+"%"
+        print "loding Microarray "+str(round(i*100.0/use_microarray_num,2))+"%"
 f.close()
 print "Microarray init finish!"
 
 temp_list = SGDID_list[int(s.split("_")[0]):int(s.split("_")[1])]
 total = 0
-for i,node in enumerate(temp_list):
+for node in temp_list:
     if node in ID2input_dict:
         gene = gene_node(node)
-        total += len(gene.input_nodes) ** 2
+        total += gene.time
     else:
         print "node lack data "+node
 
@@ -160,7 +171,7 @@ for node in temp_list:
         f.write(system)
         time_used = time.time() - time_start
         finished += len(gene.input_nodes) ** 2
-        finish_p = round(finished*1.0/total,4)
+        finish_p = finished*1.0/total
         print finish_p*100,"% finished!"
         print "time used:", \
             int(time_used/3600),"h", \
@@ -170,5 +181,3 @@ for node in temp_list:
             int((time_used/finish_p-time_used)/3600),"h", \
             int(((time_used/finish_p-time_used)%3600)/60),"min",\
             int(((time_used/finish_p-time_used)%3600)%60),"s"
-
-

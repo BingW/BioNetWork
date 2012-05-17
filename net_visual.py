@@ -2,8 +2,6 @@
 import sqlite3
 import numpy as np
 import time
-import networkx as nx
-import matplotlib.pyplot as plt
 
 #TABLE CID2condition (CID,condition) #CID = PMID_index_cindex
 #TABLE PMID2readme (PMID,README)
@@ -100,11 +98,11 @@ Coon = sqlite3.connect("/Users/bingwang/VimWork/db/Scer.db")
 C = Coon.cursor()
 other2ID = get_other2ID()
 ID2input_dict = get_ID2Interact()
-'''
 slim_P_dict = {}
 slim_C_dict = {}
 slim_F_dict = {}
 GOID2group = {}
+SGDID2GO = {}
 #TABLE ID2GO (SGDID,GOID,slim,GO_Term,GO_Aspect,GO_Definition)
 for row in C.execute("SELECT SGDID,GOID,GO_Term,GO_Aspect FROM ID2GO WHERE slim = 1"):
     if row[3] == "P":
@@ -119,4 +117,54 @@ for row in C.execute("SELECT SGDID,GOID,GO_Term,GO_Aspect FROM ID2GO WHERE slim 
     if row[1] not in GOID2group:
         GOID2group[row[1]] = []
     GOID2group[row[1]].append(row[0])
+    if row[0] not in SGDID2GO:
+        SGDID2GO[row[0]] = []
+    SGDID2GO[row[0]].append(row[1])
+GO2interact = {}
+for GOID_1 in GOID2group:
+    if GOID_1 not in GO2interact:
+        GO2interact[GOID_1] = {}
+    for ID in GOID2group[GOID_1]:
+        for GOID_2 in SGDID2GO[ID]:
+            if GOID_2 not in GO2interact[GOID_1]:
+                GO2interact[GOID_1][GOID_2] = 0
+            GO2interact[GOID_1][GOID_2] += 1
+'''
+import networkx as nx
+import matplotlib.pyplot as plt
+import random
+import math
+
+def draw_G(G,pngname,label):
+    G=nx.relabel_nodes(G,slim_dict)
+    R = nx.random_layout(G)
+    node_size = []
+    node_color = []
+    for node in G:
+        node_size.append(G.node[node]["size"])
+        node_color.append(G.node[node]["color"])
+    nx.draw(G,R,node_size=node_size,node_color=node_color,cmap=plt.cm.autumn,with_label=True)
+    edgelists = []
+    for edge in G.edges():
+        print math.log(G[edge[0]][edge[1]]["weight"],2)
+    nx.draw_networkx_edges(G,R,node_size=node_size,node_color="grey")
+    #nx.draw_networkx_labels(G,R,node_size=node_size,node_color="grey")
+    plt.xlim(-0.15,1.15)
+    plt.ylim(-0.15,1.15)
+    plt.axis('off')
+    plt.savefig(pngname,dpi=200)
+    plt.clf()
+
+G = nx.Graph()
+slim_dict = slim_C_dict
+for node in slim_dict:
+    G.add_node(node,size=len(GOID2group[node]),color=len(GOID2group[node]))
+for GOID_1 in slim_dict:
+    for GOID_2 in GO2interact[GOID_1]:
+        if GOID_2 != GOID_1 and GOID_2 in slim_dict:
+            G.add_edge(GOID_1,GOID_2,weight=GO2interact[GOID_1][GOID_2])
+
+png = "/Users/bingwang/VimWork/BioNetWork/Slim_C_test.png"
+draw_G(G,png,True)
+
 
