@@ -5,9 +5,11 @@
 *.graffle
 system_data
 net_structure
+.DS_Store
 :wq
 function.txt
-
+history
+results
 # Packages
 *.egg
 *.egg-info
