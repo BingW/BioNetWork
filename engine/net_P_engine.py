@@ -144,7 +144,6 @@ if __name__ == "__main__":
     edges[10] = [8,9]
     edges[11] = [8,9,1]
     G = nx.Graph()
-    
     pos = {}
     for i,node in enumerate(nodes):
         G.add_node(node)
@@ -152,6 +151,7 @@ if __name__ == "__main__":
         for link_node in edges[node]:
             if link_node in G and link_node in G:
                 G.add_edge(node,link_node)
+
     pos = physics_engine(G,pos,label=False)
     
     #G.add_nodes_from(nodes)

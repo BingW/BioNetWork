@@ -8,24 +8,24 @@ def calculate_function(gene):
         M_array[:,0] = line_0 
         M_array[:,1] = line_1 
         M_array[:,2] = line_2
-        count_array = np.zeros((3,2,2),dtype = np.uint16)
+        count_array = np.zeros((3,3,3),dtype = np.uint16)
         for line in M_array:
-            if 99 in line or line[1] == 0 or line[2] == 0:
+            if 99 in line:
                 continue
             else:
-                count_array[line[0],line[1]-1,line[2]-1] += 1
+                count_array[line[0],line[1],line[2]] += 1
         return count_array
   
     def bayes_one_nodes():
         M_array = np.zeros((use_microarray_num,2),dtype = np.int8)
         M_array[:,0] = line_0 
         M_array[:,1] = line_1
-        count_array = np.zeros((3,2),dtype = int)
+        count_array = np.zeros((3,3),dtype = int)
         for line in M_array:
-            if 99 in line or line[1] == 0:
+            if 99 in line:
                 continue
             else:
-                count_array[line[0],line[1]-1] += 1
+                count_array[line[0],line[1]] += 1
         return count_array
 
     node_0 = gene.SGDID
@@ -79,12 +79,14 @@ class gene_node():
 ####    main    ####
 ####################
 lab_dict = "/Users/bingwang/VimWork/BioNetWork/"
-p = 8
+p = 1
 
-p_dict = {1: "0_603", 2: "603_1204", 3: "1204_1662", \
-        4: "1662_2132", 5: "2132_2438", 6: "2438_3158", \
-        7: "3158_3654", 8: "3654_4183", 9: "4183_4633", \
-        10: "4633_5939"}
+p_dict = {1: "0_375", 2: "375_750", 3: "750_1125", \
+        4: "1125_1500", 5: "1500_1875", 6: "1875_2250", \
+        7: "2250_2625", 8: "2625_3000", 9: "3000_3375", \
+        10: "3375_3750", 11: "3750_4125", 12: "4125_4500",\
+        13: "4500_4875", 14: "4875_5250", 15: "5250_5625",\
+        16: "5625_5939"}
 
 s = p_dict[p]
 use_microarray_num = 1000 

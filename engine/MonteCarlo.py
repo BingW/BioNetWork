@@ -4,9 +4,6 @@ import sys
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
-sys.path.append("/Users/bingwang/VimWork/")
-import My_Physical_engine as Phy
-
 
 def cross(line1,line2):
 
@@ -80,8 +77,43 @@ def cross_score(H,r):
     return cross_array
     
 def monte_carlo(G):
-    G_array = Phy.G_2_array(G)
+    def G2array(G,n2i):
+        G_array = np.zeros((len(G),len(G)),dtype=np.bool)
+        for n1,n2 in G.edges():
+            G_array[n2i[n1],n2i[n2]] = True
+            G_array[n2i[n2],n2i[n1]] = True
+        return G_array
 
+    def R2r(R,n2i):
+        r = np.zeros((len(n2i),2),dtype = float)
+        for n in n2i:
+            r[n2i[n]] = R[n] 
+        return r
+    
+    def r2R(r,i2n):
+        _R = {}
+        for i,line in enumerate(r):
+            _R[i2n[i]] = line
+        return _R
+
+    def draw_G(G,r,ID=None):
+        if ID == None:
+            ID = ""
+        pos = {}
+        for i,item in enumerate(G):
+            pos[item] = (r[i][0],r[i][1])
+
+        nx.draw(G,pos)
+        plt.savefig("/Users/bingwang/VimWork/BioNetWork/engine/test.png",dpi=50)
+        plt.clf()
+
+    n2i = {}
+    i2n = {}
+    for i,node in enumerate(G):
+        n2i[node] = i
+        i2n[i] = node
+
+    G_array = G2array(G)
     step = 10000
     r_0 = np.random.rand(len(G),2)
     r_opt = r_0
@@ -91,7 +123,7 @@ def monte_carlo(G):
     for i in range(step):
         #v_0 = np.random.rand(len(G),2)*2-1
         #r_0 = r_opt + v_0 * 0.1
-        r_0 = r_opt[]
+        r_0 = np.random.rand(len(G),2)
         this_cross_score_array = cross_score(G_array,r_0)
         this_score = sum(this_cross_score_array)/4
 
@@ -103,17 +135,7 @@ def monte_carlo(G):
             continue
     return r_opt
 
-def draw_G(G,r,ID=None):
-    if ID == None:
-        ID = ""
-    color = []
-    pos = {}
-    for i,item in enumerate(G):
-        color.append(i)
-        pos[item] = (r[i][0],r[i][1])
-    nx.draw(G,pos,node_color=color)
-    plt.savefig("/Users/bingwang/VimWork/MonteCarlo/test"+ID+".png",dpi=50)
-    plt.clf()
+
 
 ###############
 

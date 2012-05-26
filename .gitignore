@@ -1,6 +1,11 @@
 *.py[co]
 *.swp
 *.tab
+*.png
+*.graffle
+system_data
+net_structure
+:wq
 function.txt
 
 # Packages
