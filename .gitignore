@@ -1,8 +1,7 @@
 *.py[co]
 *.swp
 *.tab
-*.png
-*.graffle
+
 system_data
 net_structure
 .DS_Store
