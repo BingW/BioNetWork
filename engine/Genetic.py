@@ -111,7 +111,7 @@ def duplicate(now_reps,to_num):
         new_reps.append(self_change(new_2))
     return new_reps
 
-def draw_G(G,pngname,R = None):
+def draw_G(G,pngname,R=None,bw=None):
     if R == None:
         G = nx.relabel_nodes(G,slim_dict)
         R = nx.get_node_attributes(G,'pos')
@@ -119,10 +119,12 @@ def draw_G(G,pngname,R = None):
     node_color = []
     for node in G:
         size = math.log(G.node[node]["size"],2)*100
-        #size = G.node[node]["size"]
         node_size.append(size)
-        #node_color.append(G.node[node]["color"])
-    nx.draw_networkx_nodes(G,R,node_size=node_size,node_color="white",cmap=plt.cm.autumn)
+        node_color.append(G.node[node]["color"])
+    if bw == True:
+        nx.draw_networkx_nodes(G,R,node_size=node_size,node_color="white")
+    else:
+        nx.draw_networkx_nodes(G,R,node_size=node_size,node_color=node_color,cmap=plt.cm.autumn)
     for edge in G.edges():
         width = math.log(G[edge[0]][edge[1]]["weight"],2)
         percent = G[edge[0]][edge[1]]["percent"]
@@ -134,7 +136,7 @@ def draw_G(G,pngname,R = None):
     plt.savefig(pngname,dpi=200)
     plt.clf()
 
-def genetic(G,fit):
+def genetic(G,fit,pngpath=None,bw=None):
     print len(G)
     def rep2R(rep):
         R = {}
@@ -169,10 +171,8 @@ def genetic(G,fit):
                 best_score = score
                 best_score_count = 0
                 best_order = rep
-                if fit == "C":
-                    draw_G(G,"/Users/bingwang/VimWork/BioNetWork/Genetic_Cross/"+str(count)+".png",R)
-                else:
-                    draw_G(G,"/Users/bingwang/VimWork/BioNetWork/Genetic_Length/"+str(count)+".png",R)
+                if pngpath != None:
+                    draw_G(G,pngpath+str(count)+".png",R,bw)
                 count += 1
             fitness_list.append(score)
         print fitness_list

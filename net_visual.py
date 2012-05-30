@@ -1,13 +1,9 @@
 #conding:utf-8
-import sqlite3
+import sqlite3,time,random,math,json,os
 import numpy as np
-import time
-import random
-import math
-import json
 import networkx as nx
 import matplotlib.pyplot as plt
-
+path = "/Users/bingwang/VimWork/BioNetWork/"
 #TABLE CID2condition (CID,condition) #CID = PMID_index_cindex
 #TABLE PMID2readme (PMID,README)
 #TABLE other2ID (other unique, SGDID)
@@ -17,83 +13,27 @@ import matplotlib.pyplot as plt
 #TABLE ID2Product (SGDID, product)
 #TABLE ID2Phenotype (SGDID, mutan_type, phenotype, chemical, condition, details, reporter)
 #TABLE ID2GO (SGDID,GOID,slim,GO_Term,GO_Aspect,GO_Definition)
-class gene_node():
-    def __init__(self,ID):
-        self.SGDID = ID
-        self.input_nodes = [node for node in ID2input_dict[ID] if node != ID]
-        self.status = 0
 
-def get_other2ID():
-    _other2ID = {}
-    for row in C.execute("SELECT * FROM other2ID"):
-        _other2ID[row[0]] = row[1]
-    return _other2ID
+def structure_init():
+    def get_other2ID():
+        _other2ID = {}
+        for row in C.execute("SELECT * FROM other2ID"):
+            _other2ID[row[0]] = row[1]
+        return _other2ID
 
-def get_ID2Interact():
-    _ID2Interact = {}
-    for row in C.execute("SELECT SGDID_1,SGDID_2,GP FROM ID2Interact"):
-        if row[0] not in _ID2Interact:
-            _ID2Interact[row[0]] = {}
-        if row[1] not in _ID2Interact:
-            _ID2Interact[row[1]] = {}
-        if row[1] not in _ID2Interact[row[0]]:
-            _ID2Interact[row[0]][row[1]] = row[2]
-        if row[0] not in _ID2Interact[row[1]]:
-            _ID2Interact[row[1]][row[0]] = row[2]
-    return _ID2Interact
+    def get_ID2Interact():
+        _ID2Interact = {}
+        for row in C.execute("SELECT SGDID_1,SGDID_2,GP FROM ID2Interact"):
+            if row[0] not in _ID2Interact:
+                _ID2Interact[row[0]] = {}
+            if row[1] not in _ID2Interact:
+                _ID2Interact[row[1]] = {}
+            if row[1] not in _ID2Interact[row[0]]:
+                _ID2Interact[row[0]][row[1]] = row[2]
+            if row[0] not in _ID2Interact[row[1]]:
+                _ID2Interact[row[1]][row[0]] = row[2]
+        return _ID2Interact
 
-def group_interact(group):
-    _PG_interact = {}
-    for row in C.execute("SELECT SGDID_1,SGDID_2 FROM ID2Interact"):
-        if row[0] not in group or row[1] not in group:
-            continue
-        if row[0] not in _PG_interact:
-            _PG_interact[row[0]] = {}
-        if row[1] not in _PG_interact:
-            _PG_interact[row[1]] = {}
-        if row[1] not in _PG_interact[row[0]]:
-            _PG_interact[row[0]][row[1]] = "U"
-        if row[0] not in _PG_interact[row[1]]:
-            _PG_interact[row[1]][row[0]] = "U"
-    return _PG_interact
-
-def module_seperate(ID2net):
-    # L1 ID2net should be dict[ID] = {ID1:"",ID2:"",ID3:""...}
-    _mod_groups = {}
-    _node_viewed = []
-    _stop_degree = 2
-    while len(_node_viewed) < len(ID2net):
-        _max_degree = 0
-        _max_id = None
-        for _ID in ID2net:
-            if _ID in _node_viewed:
-                continue
-            _degree = len([n for n in ID2net[_ID] if n not in _node_viewed])
-            if _degree > _max_degree:
-                _max_degree = _degree
-                _max_id = _ID
-
-        if _max_degree < _stop_degree:
-            break
-
-        _mod_groups[_max_id] = [_max_id]
-        _node_viewed.append(_max_id)
-
-        _node_remove = []
-        for _ID in ID2net[_max_id]:
-            if _ID in _node_viewed:
-                continue
-            _degree = len([n for n in ID2net[_ID] if n in ID2net[_max_id] and n != _max_id])
-            if _degree == 0:
-                _node_remove.append(_ID)
-
-        for _ID in ID2net[_max_id]:
-            if _ID not in _node_viewed and _ID not in _node_remove:
-                _node_viewed.append(_ID)
-                _mod_groups[_max_id].append(_ID)
-    return _mod_groups
-
-def init():
     Coon = sqlite3.connect("/Users/bingwang/VimWork/db/Scer.db")
     C = Coon.cursor()
     other2ID = get_other2ID()
@@ -131,7 +71,7 @@ def init():
                 GO2interact[GOID_1][GOID_2] += 1
     net_structure = [slim_P_dict,slim_C_dict,slim_F_dict,GOID2group,SGDID2GO,GO2interact]
     encode = json.dumps(net_structure)
-    f = open("/Users/bingwang/VimWork/BioNetWork/net_structure","w")
+    f = open(path+"results/net_structure","w")
     f.write(encode)
     f.close()
 
@@ -164,21 +104,22 @@ def G_init(slim_dict,slim):
         for GOID_2 in GO2interact[GOID_1]:
             if GOID_2 != GOID_1 and GOID_2 in slim_dict:
                 G.add_edge(GOID_1,GOID_2,weight=GO2interact[GOID_1][GOID_2],percent=0.5,percent_1=0.5,percent_2=0.5)
-    png = "/Users/bingwang/VimWork/BioNetWork/slim_"+slim+".png"
+    png = path+"/results/slim_"+slim+"/slim_"+slim+".png"
     G = nx.relabel_nodes(G,slim_dict)
-    nx.write_gpickle(G,"/Users/bingwang/VimWork/BioNetWork/G_slim_"+slim)
+    nx.write_gpickle(G,path+"/results/G_slim_"+slim)
     draw_G(G,png)
 
-def better_display(G,slim,fit=None):
+def better_display(G,slim,pic,fit=None,pngpath=None,bw=None):
     import engine.Genetic as Genetic
-    _fit = "C" if fit == None else "L"
-    R = Genetic.genetic(G,_fit)
+    _fit = "C" if fit == "C" else "L"
+    R = Genetic.genetic(G,_fit,pngpath,bw)
     for node in G:
         G.node[node]["pos"] = R[node]
-    nx.write_gpickle(G,"/Users/bingwang/VimWork/BioNetWork/G_slim_"+slim+"_"+_fit)
+    nx.write_gpickle(G,pic)
 
-def draw_G(G,pngname,with_labels=None):
-    draw_active = "1" 
+def draw_G(G,pngname,with_labels=None,draw_active=None):
+    if with_labels==True:
+        plt.figure(1,figsize=(10,6))
     Pos = nx.get_node_attributes(G,'pos')
     node_size = []
     node_active_1 = []
@@ -196,9 +137,11 @@ def draw_G(G,pngname,with_labels=None):
     elif draw_active == "2":
         nx.draw_networkx_nodes(G,Pos,node_size=node_size,node_color=node_active_2,\
                 cmap=plt.cm.Greens_r,alpha=0.6)
-    else:
+    elif draw_active == "sum":
         nx.draw_networkx_nodes(G,Pos,node_size=node_size,node_color=node_active_sum,\
                 cmap=plt.cm.gray,alpha=0.6)
+    else:
+        nx.draw_networkx_nodes(G,Pos,node_size=node_size,node_color="white")
     for edge in G.edges():
         width = math.log(G[edge[0]][edge[1]]["weight"],2)
         if draw_active == "1":
@@ -208,62 +151,46 @@ def draw_G(G,pngname,with_labels=None):
         else: 
             percent = G[edge[0]][edge[1]]["percent"]
         nx.draw_networkx_edges(G,Pos,edgelist=[edge],width=width,alpha=percent)
+
     if with_labels == True:
-        nx.draw_networkx_labels(G,Pos,font_size=10)
-    plt.xlim(-2,1.9)
-    plt.ylim(-1.7,1.6)
+        node_dict = {}
+        re_node_dict = {}
+        for i,node in enumerate(G):
+            node_dict[node] = i
+            re_node_dict[i] = node
+        G = nx.relabel_nodes(G,node_dict)
+        new_Pos = {}
+        for node in Pos:
+            new_Pos[node_dict[node]] = Pos[node]
+        s = ""
+        if slim == "P":
+            nx.draw_networkx_labels(G,new_Pos,font_size=7)
+            for i in re_node_dict:
+                s += " "*(2-len(str(i)))+str(i)+": "+re_node_dict[i]
+                s += " "*(30-len(re_node_dict[i])) if len(re_node_dict[i]) < 30 else "  "
+                if i%2 == 0:
+                    s += "\n"
+            plt.figtext(0.58,0.12,s,family="monospace",horizontalalignment='left',size="7")
+        elif slim == "F":
+            nx.draw_networkx_labels(G,new_Pos,font_size=8)
+            for i in re_node_dict:
+                s += " "*(2-len(str(i)))+str(i)+": "+re_node_dict[i]+"\n"
+            plt.figtext(0.58,0.05,s,family="monospace",horizontalalignment='left',size="8")
+        elif slim == "C":
+            nx.draw_networkx_labels(G,new_Pos,font_size=10)
+            for i in re_node_dict:
+                s += " "*(2-len(str(i)))+str(i)+": "+re_node_dict[i]+"\n"
+            plt.figtext(0.60,0.14,s,family="monospace",horizontalalignment='left',size="11")
+
+
+    if with_labels == True:
+        plt.xlim(-1.6,3.8)
+    else:
+        plt.xlim(-1.6,1.8)
+    plt.ylim(-1.6,1.8)
     plt.axis('off')
-    plt.savefig(pngname,dpi=200)
+    plt.savefig(pngname,dpi=400)
     plt.clf()
-
-def modify_G(G=None,G_pickle=None,slim_dict=None,node_size=None,node_pos=None,edge_width=None,\
-        node_status_1=None,node_status_2=None,edge_active=None):
-    if G == None and G_pickle == None:
-        print "ERROR: G or G_pickle should provided"
-        return None
-    if G == None:
-        G = nx.read_gpickle(G_pickle)
-    if slim_dict != None:
-        G.graph["slim"] = slim_dict
-    if node_size != None:
-        for node in G:
-            G.node[node]["size"] = node_size[node]
-    if node_pos != None:
-        for node in G:
-            G.node[node]["pos"] = node_pos[node]
-    if edge_width != None:
-        for node_1 in G:
-            for node_2 in G[node_1]:
-                G[node_1][node_2]["weight"] = edge_width[node_1][node_2]
-    if node_status_1 != None:
-        for node in G:
-            G.node[node]["1"] = node_status_1[node]
-    if node_status_2 != None:
-        for node in G:
-            G.node[node]["2"] = node_status_2[node]
-    if edge_active != None:
-        for node_1 in G:
-            for node_2 in G[node_1]:
-                G[node_1][node_2]["percent"] = edge_active[node_1][node_2]
-                # a float between[0,1]
-    if G == None:
-        nx.write_gpickle(G,G_pickle)
-    #png = "/Users/bingwang/VimWork/BioNetWork/slim_"+G.graph["slim"]+".png"
-    #draw_G(G,png)
-    return G
-
-def get_input(CID):
-    f = open("/Users/bingwang/VimWork/BioNetWork/ScerMicro_b.tab")
-    SGDID_list = f.readline().split("\t")[1:-1] #because nothing after the last '\t'
-    input_dict = {}
-    for line in f:
-        if line.startswith(CID):
-            for i,num in enumerate(line.split("\t")[1:-1]):
-                input_dict[SGDID_list[i]] = num
-            f.close()
-            return input_dict
-    print "CID not find"
-    return None
 
 def calculate(input_dict,G):
     for GOID in G:
@@ -278,7 +205,7 @@ def calculate(input_dict,G):
                 G.node[GOID]["2"] += 1
         G.node[GOID]["1"] = 1-G.node[GOID]["1"] * 1.0 / G.node[GOID]['size']
         G.node[GOID]["2"] = 1-G.node[GOID]["2"] * 1.0 / G.node[GOID]['size']
-        G.node[GOID]["sum"] = 1-(G.node[GOID]["1"]+G.node[GOID]["2"])*1.0/G.node[GOID]['size']
+        G.node[GOID]["sum"] = 1-(G.node[GOID]["1"]+G.node[GOID]["2"]) * 1.0/G.node[GOID]['size']
     
     for node_1 in G:
         for node_2 in G[node_1]:
@@ -301,9 +228,11 @@ def calculate(input_dict,G):
                         G[node_1][node_2]["percent_2"] += 0.49 / G[node_1][node_2]["weight"]
     return G
 
-
-def draw_dicts(G):
-    dicts_file = "/Users/bingwang/VimWork/BioNetWork/P_test/dict_list.txt"
+def draw_dicts(G,dicts_file,pngpath):
+    middle = 10 
+    #os.system("mkdir "+pngpath+"1/")
+    #os.system("mkdir "+pngpath+"2/")
+    #os.system("mkdir "+pngpath+"sum/")
     f = open(dicts_file)
     line_1 = f.readline().split("\t")[:-1]
     input_dicts = []
@@ -313,24 +242,66 @@ def draw_dicts(G):
             input_dict[line_1[i]] = value
         input_dicts.append(input_dict)
 
+    series = []
     for i,input_dict in enumerate(input_dicts):
         G = calculate(input_dict,G)
-        png = "/Users/bingwang/VimWork/BioNetWork/P_test/slim_P_"+str(i)+".png"
-        draw_G(G,png)
+        series.append(G.copy())
+    for i in xrange(len(series)-1):
+        G_i = series[i]
+        G_n = series[i+1]
+        for j in xrange(middle):
+            for node_1 in G:
+                G.node[node_1]["1"] = G_i.node[node_1]["1"]+\
+                        j*(G_n.node[node_1]["1"] - G_i.node[node_1]["1"])/middle
+                G.node[node_1]["2"] = G_i.node[node_1]["1"]+\
+                        j*(G_n.node[node_1]["2"] - G_i.node[node_1]["2"])/middle
+                G.node[node_1]["sum"] = G_i.node[node_1]["1"]+\
+                        j*(G_n.node[node_1]["sum"] - G_i.ndoe[node_1]["sum"])/middle
+                for node_2 in G[node_1]:
+                    G[node_1][node_2]["percent"] = G_i[node_1][node_2]["percent"]+\
+                            j*(G_n[node_1][node_2]["percent"]-G_i[node_1][node_2]["percent"])/middle
+                    G[node_1][node_2]["percent_1"] = G_i[node_1][node_2]["percent_1"]+\
+                            j*(G_n[node_1][node_2]["percent_1"]-G_i[node_1][node_2]["percent_1"])/middle 
+                    G[node_1][node_2]["percent_2"] = G_i[node_1][node_2]["percent_2"]+\
+                            j*(G_n[node_1][node_2]["percent_2"]-G_i[node_1][node_2]["percent_2"])/middle 
 
+            png = pngpath+"1/"+str(i*middle+j)+".png"
+            draw_G(G,png,draw_part="1")
+            png = pngpath+"2/"+str(i*middle+j)+".png"
+            draw_G(G,png,draw_part="2")
+            png = pngpath+"sum/"+str(i*middle+j)+".png"
+            draw_G(G,png,draw_part="sum")
 
-f = open("/Users/bingwang/VimWork/BioNetWork/net_structure")
-encode = f.read()
-[slim_P_dict,slim_C_dict,slim_F_dict,GOID2group,SGDID2GO,GO2interact] = json.loads(encode)
-#G_init(slim_C_dict,"C")
-G_pic = "/Users/bingwang/VimWork/BioNetWork/G_slim_C"
-G = nx.read_gpickle(G_pic)
-better_display(G,"C",fit="L")
-'''
-input_dict = get_input("10586882_0_1")
-G = calculate(input_dict,G)
-png = "/Users/bingwang/VimWork/BioNetWork/P_test/10586882_0_1.png"
-draw_G(G,png)
-'''
-#draw_dicts()
+def unrelabel_G(G,slim_dict):
+    relabel_dict = {}
+    for node in slim_dict:
+        relabel_dict[slim_dict[node]] = node
+    G = nx.relabel_nodes(G,relabel_dict)
+    return G
+
+f = open(path+"results/net_structure")
+[slim_P_dict,slim_C_dict,slim_F_dict,GOID2group,SGDID2GO,GO2interact] = json.loads(f.read())
+slim = "F"
+fitness = "C"
+#pic_original = path+"results/slim_"+slim+"/G_slim_"+slim
+pic_better =  path+"results/slim_"+slim+"/G_slim_"+slim+"_"+fitness
+G = nx.read_gpickle(pic_better)
+draw_G(G,path+"test.png",with_labels=True)
+#CID = "10586882_0"
+#CID = "10611304_0"
+#CID = "9843569_1"
+#fitness = "C"
+#for slim in ["P","C","F"]:
+#    G_pic= path+"results/slim_"+slim+"/G_slim_"+slim+"_"+fitness
+#    G = nx.read_gpickle(G_pic)
+#    if slim == "P":
+#        G = unrelabel_G(G,slim_P_dict)
+#    elif slim == "C":
+#        G = unrelabel_G(G,slim_C_dict)
+#    elif slim == "F":
+#        G = unrelabel_G(G,slim_F_dict)
+#    dict_file = path+"results/real_"+CID+".txt"
+#    png_path = path+"results/slim_"+slim+"/real_"+CID+"/"
+#    #os.system("mkdir "+png_path)
+#    draw_dicts(G,dict_file,png_path)
 

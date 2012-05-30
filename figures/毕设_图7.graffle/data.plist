@@ -44,14 +44,14 @@
 	<key>Creator</key>
 	<string>Bing</string>
 	<key>DisplayScale</key>
-	<string>1 0/72 in = 1 0/72 in</string>
+	<string>1 0/72 in = 1.0000 in</string>
 	<key>GraphDocumentVersion</key>
 	<integer>8</integer>
 	<key>GraphicsList</key>
 	<array>
 		<dict>
 			<key>Bounds</key>
-			<string>{{552, 851}, {80, 21}}</string>
+			<string>{{222, 865}, {168, 25}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -63,7 +63,62 @@
 				<key>Font</key>
 				<string>STHeitiSC-Light</string>
 				<key>Size</key>
-				<real>19</real>
+				<real>23</real>
+			</dict>
+			<key>ID</key>
+			<integer>16</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Pad</key>
+				<integer>0</integer>
+				<key>Text</key>
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf1138\cocoasubrtf470
+{\fonttbl\f0\fnil\fcharset134 STHeitiSC-Light;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
+
+\f0\fs48 \cf0 \'d7\'ee\'d0\'a1\'be\'e0\'c0\'eb\'ba\'cd\'d3\'c5\'bb\'af}</string>
+				<key>VerticalPad</key>
+				<integer>0</integer>
+			</dict>
+			<key>Wrap</key>
+			<string>NO</string>
+		</dict>
+		<dict>
+			<key>Bounds</key>
+			<string>{{780, 866}, {168, 25}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>FitText</key>
+			<string>YES</string>
+			<key>Flow</key>
+			<string>Resize</string>
+			<key>FontInfo</key>
+			<dict>
+				<key>Font</key>
+				<string>STHeitiSC-Light</string>
+				<key>Size</key>
+				<real>23</real>
 			</dict>
 			<key>ID</key>
 			<integer>11</integer>
@@ -97,7 +152,7 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs40 \cf0 \'d3\'c5\'bb\'af\'cd\'ea\'b3\'c9}</string>
+\f0\fs48 \cf0 \'d7\'ee\'d0\'a1\'bd\'bb\'b2\'e6\'ca\'fd\'d3\'c5\'bb\'af}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -106,7 +161,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{827, 419}, {123, 21}}</string>
+			<string>{{790.5, 419}, {147, 25}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -118,7 +173,7 @@
 				<key>Font</key>
 				<string>STHeitiSC-Light</string>
 				<key>Size</key>
-				<real>19</real>
+				<real>23</real>
 			</dict>
 			<key>ID</key>
 			<integer>10</integer>
@@ -152,7 +207,7 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs40 \cf0 \'d3\'c5\'bb\'af40\'b2\'bd\'d6\'ae\'ba\'f3}</string>
+\f0\fs48 \cf0 \'d3\'c5\'bb\'af40\'b2\'bd\'d6\'ae\'ba\'f3}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -161,7 +216,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{270, 419}, {60, 21}}</string>
+			<string>{{261, 419}, {72, 25}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -173,7 +228,7 @@
 				<key>Font</key>
 				<string>STHeitiSC-Light</string>
 				<key>Size</key>
-				<real>19</real>
+				<real>23</real>
 			</dict>
 			<key>ID</key>
 			<integer>6</integer>
@@ -207,7 +262,7 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs40 \cf0 \'d3\'c5\'bb\'af\'c7\'b0}</string>
+\f0\fs48 \cf0 \'d3\'c5\'bb\'af\'c7\'b0}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -216,20 +271,13 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{288, 432}, {576, 432}}</string>
+			<string>{{9, 0}, {576, 432}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>STHeitiSC-Light</string>
-				<key>Size</key>
-				<real>19</real>
-			</dict>
 			<key>ID</key>
-			<integer>5</integer>
+			<integer>12</integer>
 			<key>ImageID</key>
-			<integer>4</integer>
+			<integer>5</integer>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -256,17 +304,10 @@
 			<string>{{576, 0}, {576, 432}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>STHeitiSC-Light</string>
-				<key>Size</key>
-				<real>19</real>
-			</dict>
 			<key>ID</key>
-			<integer>4</integer>
+			<integer>13</integer>
 			<key>ImageID</key>
-			<integer>3</integer>
+			<integer>6</integer>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -290,20 +331,43 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{0, 0}, {576, 432}}</string>
+			<string>{{9, 459}, {576, 432}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>STHeitiSC-Light</string>
-				<key>Size</key>
-				<real>19</real>
-			</dict>
 			<key>ID</key>
-			<integer>3</integer>
+			<integer>14</integer>
 			<key>ImageID</key>
-			<integer>1</integer>
+			<integer>7</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+		</dict>
+		<dict>
+			<key>Bounds</key>
+			<string>{{576, 459}, {576, 432}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>ID</key>
+			<integer>15</integer>
+			<key>ImageID</key>
+			<integer>8</integer>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -335,18 +399,20 @@
 	<key>HPages</key>
 	<integer>2</integer>
 	<key>ImageCounter</key>
-	<integer>5</integer>
+	<integer>9</integer>
 	<key>ImageLinkBack</key>
 	<array>
+		<dict/>
 		<dict/>
 		<dict/>
 		<dict/>
 	</array>
 	<key>ImageList</key>
 	<array>
-		<string>image4.png</string>
-		<string>image3.png</string>
-		<string>image1.png</string>
+		<string>image8.png</string>
+		<string>image7.png</string>
+		<string>image6.png</string>
+		<string>image5.png</string>
 	</array>
 	<key>KeepToScale</key>
 	<false/>
@@ -385,7 +451,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2012-05-25 01:49:31 +0000</string>
+	<string>2012-05-29 02:54:52 +0000</string>
 	<key>Modifier</key>
 	<string>Bing</string>
 	<key>NotesVisible</key>
@@ -466,7 +532,7 @@
 			</dict>
 		</array>
 		<key>Frame</key>
-		<string>{{271, 54}, {710, 690}}</string>
+		<string>{{0, 84}, {1280, 694}}</string>
 		<key>ListView</key>
 		<true/>
 		<key>OutlineWidth</key>
@@ -480,7 +546,7 @@
 		<key>SidebarWidth</key>
 		<integer>120</integer>
 		<key>VisibleRegion</key>
-		<string>{{175, 472}, {575, 535}}</string>
+		<string>{{2, 457}, {1145, 539}}</string>
 		<key>Zoom</key>
 		<real>1</real>
 		<key>ZoomValues</key>

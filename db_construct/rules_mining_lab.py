@@ -60,7 +60,7 @@ def calculate_function(gene):
             for i_m,m in enumerate(cord_2):
                 for j_n,n in enumerate(m):
                     if sum_2[i_m,j_n] > minimal_sum and percent_2[i_m,j_n] > similar_percent:
-                        cond = node_1+"\t"+str(i_m+1)+"\tAND\t"+node_2+"\t"+str(j_n+1)+\
+                        cond = node_1+"\t"+str(i_m)+"\tAND\t"+node_2+"\t"+str(j_n)+\
                                 "\t=>\t"+node_0+"\t"+str(n)+\
                                 "\tconfi:\t"+str(percent_2[i_m,j_n])+"\n"
                         func += cond
