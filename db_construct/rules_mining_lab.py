@@ -10,6 +10,7 @@ def calculate_function(gene):
         M_array[:,2] = line_2
         count_array = np.zeros((3,3,3),dtype = np.uint16)
         for line in M_array:
+            #TODO use Counter
             if 99 in line:
                 continue
             else:

@@ -36,6 +36,14 @@ def LAW_init():
     return LAW, list(set(referenced))
 
 def Run(init_dict,LAW):
+    def calculate_status():
+        status = np.zeros([3])
+        for node in init_dict:
+            if status_dict[node] == 99:
+                continue
+            else:
+                status[init_dict[node]] += 1
+   
     def check_condition(condition):
         if len(condition) == 2:
             return True if init_dict[condition[0]] == condition[1] else False
@@ -76,7 +84,7 @@ def compare(dict_predict,dict_target,compare_list):
             NA += 1
         elif dict_predict[node] == dict_target[node]:
             right += 1
-    return right * 1.0 / (len(compare_list) - NA)
+    return round(right * 1.0 / (len(compare_list) - NA),4)
 
 def get_input(CID):
     f = open(path+"results/ScerMicro_b.tab")
@@ -91,39 +99,60 @@ def get_input(CID):
     print "CID not find"
     return None
 
-def predict_series(init_dict,out_file,real_dicts,step):
-    f = open(out_file,"w")
+def predict_series(init_dict,step,real_CIDs=None,out_file=None):
+    if real_CIDs != None:
+        real_dicts = [get_input(CID) for CID in real_CIDs]
+        best_match = {}
+        for i,status_dict in enumerate(real_dicts):
+            print CID_list[i]+"\t"+str(compare(status_dict,real_dicts[0],s_nodes))+\
+                    "\t"+str(calculate_balance(status_dict))
+            best_match[CID_list[i]] = (compare(real_dicts[0],status_dict,ALL_nodes),0)
+        for CID in real_CIDs:
+            print CID, best_match[CID]
+        write_real_series(real_dicts,out_file+".real")
+
     predict_dict = Run(init_dict,LAW)
-    for node in ALL_nodes:
-        f.write(node+"\t")
-    f.write("\n")
-    for node in ALL_nodes:
-        f.write(str(init_dict[node])+"\t")
-    f.write("\n")
-    for node in ALL_nodes:
-        f.write(str(predict_dict[node])+"\t")
-    f.write("\n")
-    zero_dict = {}
-    for node in ALL_nodes:
-        zero_dict[node] = 0
-    for i in xrange(step):
-        predict_dict = Run(predict_dict,LAW)
-        for real_dict in real_dicts:
-            print CID,compare(predict_dict,real_dict,ALL_nodes),\
-                    compare(zero_dict,real_dict,ALL_nodes)
+    if out_file != None:
+        f = open(out_file+".predict","w")
+        for node in ALL_nodes:
+            f.write(node+"\t")
+        f.write("\n")
+        for node in ALL_nodes:
+            f.write(str(init_dict[node])+"\t")
+        f.write("\n")
         for node in ALL_nodes:
             f.write(str(predict_dict[node])+"\t")
         f.write("\n")
 
+    for i in xrange(step):
+        predict_dict = Run(predict_dict,LAW)
+        if real_CIDs != None:
+            for j,real_dict in enumerate(real_dicts):
+                score = compare(predict_dict,real_dict,ALL_nodes)
+                if score > best_match[CID_list[j]][0]:
+                    best_match[CID_list[j]] = (score,i)
+                    print CID_list[j]+"\t"+str(score)+"\t"+str(i+1)
+
+        if out_file != None:
+            for node in ALL_nodes:
+                f.write(str(predict_dict[node])+"\t")
+            f.write("\n")
+    if real_dict != None:
+        return best_match
+
 def write_real_series(series_data,out_file):
-    f = open(out_file,"w")
-    for node in ALL_nodes:
-        f.write(node+"\t")
-    f.write("\n")
-    for node_dict in series_data:
+    if type(series_data) == type([]):
+        f = open(out_file,"w")
         for node in ALL_nodes:
-            f.write(str(node_dict[node])+"\t")
+            f.write(node+"\t")
         f.write("\n")
+        for node_dict in series_data:
+            for node in ALL_nodes:
+                f.write(str(node_dict[node])+"\t")
+            f.write("\n")
+    else:
+        print "Type Error"
+        return None
 
 def dict_average(dicts):
     avg_dict = {}
@@ -144,11 +173,65 @@ def count_status(status_dict,compare_list):
         else:
             status[status_dict[node]] += 1
     status = 100 * status / len(compare_list)
-    _99 = _99 *100.0 / len(compare_list)
+    _99 = _99 * 100.0 / len(compare_list)
     print "0:",round(status[0],4),"%  1:",round(status[1],4),\
             "%  2:",round(status[2],4),"%  99:",round(_99,4),"%"
+    return round(status[0],4)
 
-#########main###########
+def calculate_balance(status_dict):
+    status = np.zeros([3])
+    _99 = 0
+    for node in status_dict:
+        if status_dict[node] == 99:
+            _99 += 1
+        else:
+            status[status_dict[node]] += 1
+    status = status / len(status_dict)
+    _99 = _99 / len(status_dict)
+    return round(status[0],4)
+
+def predict_one(ref_dict,out_file = None):
+    count_status(ref_dict,ALL_nodes)
+    predict_dict = {}
+    for node in ALL_nodes:
+        if node in s_nodes and node in ref_dict:
+            predict_dict[node] = ref_dict[node]
+        else:
+            predict_dict[node] = 99
+    if out_file != None:
+        f = open(out_file,"w")
+        for node in ALL_nodes:
+            f.write(node+"\t")
+        f.write("\n")
+        for node in ALL_nodes:
+            f.write(str(predict_dict[node])+"\t")
+        f.write("\n")
+    print compare(predict_dict,ref_dict,ALL_nodes)
+    all_dicts = [predict_dict]
+    for i in xrange(10):
+        predict_dict = Run(predict_dict,LAW)
+        all_dicts.append(predict_dict)
+        print compare(predict_dict,ref_dict,ALL_nodes)
+        if out_file != None:
+            for node in ALL_nodes:
+                f.write(str(predict_dict[node])+"\t")
+            f.write("\n")
+    predict_dict = dict_average(all_dicts)
+    all_dicts = [predict_dict]
+    print compare(predict_dict,ref_dict,ALL_nodes)
+    for i in xrange(10):
+        predict_dict = Run(predict_dict,LAW)
+        all_dicts.append(predict_dict)
+        print compare(predict_dict,ref_dict,ALL_nodes)
+        if out_file != None:
+            for node in ALL_nodes:
+                f.write(str(predict_dict[node])+"\t")
+            f.write("\n")
+    predict_dict = dict_average(all_dicts)
+    print compare(predict_dict,ref_dict,ALL_nodes)
+    return compare(predict_dict,ref_dict,ALL_nodes)
+
+#####main###########
 '''
 LAW,referenced = LAW_init()
 ALL_nodes = [node for node in LAW]
@@ -158,55 +241,90 @@ for node in s_nodes:
     ALL_nodes.append(node)
 
 '''
-#CID_list = ["10586882_0_0","10586882_0_1","10586882_0_2","10586882_0_3",\
-#        "10586882_0_4","10586882_0_5","10586882_0_6"]
-#CID_list = ["10611304_0_0","10611304_0_1","10611304_0_2","10611304_0_3",\
-#        "10611304_0_4"]
-CID_list = ["9843569_1_0","9843569_1_1","9843569_1_2","9843569_1_3","9843569_1_4",\
-        "9843569_1_5","9843569_1_6","9843569_1_7","9843569_1_8","9843569_1_9", \
-        "9843569_1_10","9843569_1_11","9843569_1_12","9843569_1_13","9843569_1_14",\
-        "9843569_1_15","9843569_1_16","9843569_1_17","9843569_1_18","9843569_1_19",
-        "9843569_1_20","9843569_1_21","9843569_1_22","9843569_1_23","9843569_1_24"]
-series_data = [get_input(CID) for CID in CID_list]
-real_file = path+"results/real_9843569_1.txt"
-write_real_series(series_data,real_file)
-predict_one_file = path+"results/predict_9843569_1_1.txt"
-#predict_file = path+"results/predict_10611304_0.txt"
-#predict_series(series_data[0],predict_file,series_data,1000)
-def predict_one(ref_dict,out_file):
-    count_status(ref_dict,ALL_nodes)
-    predict_dict = {}
-    for node in ALL_nodes:
-        if node in s_nodes and node in ref_dict:
-            predict_dict[node] = ref_dict[node]
-        else:
-            predict_dict[node] = 99
-    f = open(out_file,"w")
-    for node in ALL_nodes:
-        f.write(node+"\t")
-    f.write("\n")
-    for node in ALL_nodes:
-        f.write(str(predict_dict[node])+"\t")
-    f.write("\n")
-    print compare(predict_dict,ref_dict,ALL_nodes)
-    all_dicts = [predict_dict]
-    for i in xrange(10):
-        predict_dict = Run(predict_dict,LAW)
-        all_dicts.append(predict_dict)
-        print compare(predict_dict,ref_dict,ALL_nodes)
-        for node in ALL_nodes:
-            f.write(str(predict_dict[node])+"\t")
-        f.write("\n")
-    predict_dict = dict_average(all_dicts)
-    all_dicts = [predict_dict]
-    print compare(predict_dict,ref_dict,ALL_nodes)
-    for i in xrange(10):
-        predict_dict = Run(predict_dict,LAW)
-        all_dicts.append(predict_dict)
-        print compare(predict_dict,ref_dict,ALL_nodes)
-        for node in ALL_nodes:
-            f.write(str(predict_dict[node])+"\t")
-        f.write("\n")
-    predict_dict = dict_average(all_dicts)
-    print compare(predict_dict,ref_dict,ALL_nodes)
-predict_one(series_data[1],predict_one_file)
+M_coon = sqlite3.connect('/Users/bingwang/VimWork/db/Scer.db')
+M_c = M_coon.cursor()
+CID2Condition = {}
+scores = []
+for row in M_c.execute("SELECT * FROM CID2Condition"):
+    CID2Condition[row[0]] = row[1]
+for CID in CID2Condition:
+    if "9843569_1" in CID:
+        print CID,CID2Condition[CID]
+'''
+ID2Interact = {}
+for row in M_c.execute("SELECT SGDID_1,SGDID_2,GP FROM ID2Interact"):
+    if row[0] not in ID2Interact:
+        ID2Interact[row[0]] = {}
+    if row[1] not in ID2Interact:
+        ID2Interact[row[1]] = {}
+    if row[1] not in ID2Interact[row[0]]:
+        ID2Interact[row[0]][row[1]] = row[2]
+    if row[0] not in ID2Interact[row[1]]:
+        ID2Interact[row[1]][row[0]] = row[2]
+
+import json
+f = open(path+"results/net_structure")
+[slim_P_dict,slim_C_dict,slim_F_dict,GOID2group,SGDID2GO,GO2interact] = json.loads(f.read())
+##############
+# modurility #
+##############
+this_dict = slim_P_dict#slim_C_dict,slim_F_dict,GOID2group
+this_dict = [GOID for GOID in this_dict]
+groups = [GOID2group[GOID] for GOID in this_dict]
+group_genes = []
+overlap = []
+for GOID_1 in this_dict:
+    for GOID_2 in this_dict:
+        if GOID_1 not in GO2interact or GOID_2 not in GO2interact[GOID_1]:
+            overlap.append(0)
+            continue
+        over_p = GO2interact[GOID_1][GOID_2] * 1.0 / \
+                (len(GOID2group[GOID_1])+len(GOID2group[GOID_2]))
+        overlap.append(over_p)
+print "overlap:", np.sum(overlap)/len(overlap) 
+
+for group in groups:
+    for gene in group:
+        group_genes.append(gene)
+group_genes = list(set(group_genes))
+E_total = 0
+gene_reuse_count = np.zeros([len(group_genes)])
+for group in groups:
+    for gene_1 in group:
+        gene_reuse_count[group_genes.index(gene_1)] += 1
+        if gene_1 not in ID2Interact:
+            continue
+        for gene_2 in ID2Interact[gene_1]:
+            if gene_2 in group_genes:
+                E_total += 1
+print np.sum(gene_reuse_count)*1. /len(groups) /len(group_genes)
+
+E_total = E_total / 2
+print E_total
+M = 0
+E_total_2 = 0
+for group in groups:
+    E_c_in = 0
+    E_c_out = 0
+    for gene_1 in group:
+        if gene_1 not in ID2Interact:
+            continue
+        for gene_2 in ID2Interact[gene_1]:
+            if gene_2 not in group_genes:
+                continue
+            if gene_2 in group:
+                E_c_in += 1
+            else:
+                E_c_out += 1
+    E_total_2 += E_c_in
+    if E_c_in%2 != 0:
+        print E_c_in,"Error!"
+    E_c_in = E_c_in / 2
+    M += ((E_c_in * 1. / E_total) - ((2.*E_c_in+E_c_out)/(2.*E_total))**2)
+    E_total_2 += E_c_out
+
+print E_total_2/2,"should equal to",E_total
+print "M = ",M
+
+
+'''

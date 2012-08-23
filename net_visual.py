@@ -175,21 +175,20 @@ def draw_G(G,pngname,with_labels=None,draw_active=None):
             nx.draw_networkx_labels(G,new_Pos,font_size=8)
             for i in re_node_dict:
                 s += " "*(2-len(str(i)))+str(i)+": "+re_node_dict[i]+"\n"
-            plt.figtext(0.58,0.05,s,family="monospace",horizontalalignment='left',size="8")
+            plt.figtext(0.62,0.05,s,family="monospace",horizontalalignment='left',size="8")
         elif slim == "C":
             nx.draw_networkx_labels(G,new_Pos,font_size=10)
             for i in re_node_dict:
                 s += " "*(2-len(str(i)))+str(i)+": "+re_node_dict[i]+"\n"
             plt.figtext(0.60,0.14,s,family="monospace",horizontalalignment='left',size="11")
 
-
     if with_labels == True:
         plt.xlim(-1.6,3.8)
     else:
-        plt.xlim(-1.6,1.8)
+        plt.xlim(-1.6,1.8) 
     plt.ylim(-1.6,1.8)
     plt.axis('off')
-    plt.savefig(pngname,dpi=400)
+    plt.savefig(pngname,dpi=200)
     plt.clf()
 
 def calculate(input_dict,G):
@@ -228,11 +227,11 @@ def calculate(input_dict,G):
                         G[node_1][node_2]["percent_2"] += 0.49 / G[node_1][node_2]["weight"]
     return G
 
-def draw_dicts(G,dicts_file,pngpath):
+def draw_dicts(G,dicts_file,pngpath,with_labels=None):
     middle = 10 
-    #os.system("mkdir "+pngpath+"1/")
-    #os.system("mkdir "+pngpath+"2/")
-    #os.system("mkdir "+pngpath+"sum/")
+    os.system("mkdir "+pngpath+"1/")
+    os.system("mkdir "+pngpath+"2/")
+    os.system("mkdir "+pngpath+"sum/")
     f = open(dicts_file)
     line_1 = f.readline().split("\t")[:-1]
     input_dicts = []
@@ -256,7 +255,7 @@ def draw_dicts(G,dicts_file,pngpath):
                 G.node[node_1]["2"] = G_i.node[node_1]["1"]+\
                         j*(G_n.node[node_1]["2"] - G_i.node[node_1]["2"])/middle
                 G.node[node_1]["sum"] = G_i.node[node_1]["1"]+\
-                        j*(G_n.node[node_1]["sum"] - G_i.ndoe[node_1]["sum"])/middle
+                        j*(G_n.node[node_1]["sum"] - G_i.node[node_1]["sum"])/middle
                 for node_2 in G[node_1]:
                     G[node_1][node_2]["percent"] = G_i[node_1][node_2]["percent"]+\
                             j*(G_n[node_1][node_2]["percent"]-G_i[node_1][node_2]["percent"])/middle
@@ -266,11 +265,11 @@ def draw_dicts(G,dicts_file,pngpath):
                             j*(G_n[node_1][node_2]["percent_2"]-G_i[node_1][node_2]["percent_2"])/middle 
 
             png = pngpath+"1/"+str(i*middle+j)+".png"
-            draw_G(G,png,draw_part="1")
+            draw_G(G,png,with_labels,draw_active="1")
             png = pngpath+"2/"+str(i*middle+j)+".png"
-            draw_G(G,png,draw_part="2")
+            draw_G(G,png,with_labels,draw_active="2")
             png = pngpath+"sum/"+str(i*middle+j)+".png"
-            draw_G(G,png,draw_part="sum")
+            draw_G(G,png,with_labels,draw_active="sum")
 
 def unrelabel_G(G,slim_dict):
     relabel_dict = {}
@@ -283,25 +282,17 @@ f = open(path+"results/net_structure")
 [slim_P_dict,slim_C_dict,slim_F_dict,GOID2group,SGDID2GO,GO2interact] = json.loads(f.read())
 slim = "F"
 fitness = "C"
-#pic_original = path+"results/slim_"+slim+"/G_slim_"+slim
+CID = "11102521_15"
 pic_better =  path+"results/slim_"+slim+"/G_slim_"+slim+"_"+fitness
 G = nx.read_gpickle(pic_better)
-draw_G(G,path+"test.png",with_labels=True)
-#CID = "10586882_0"
-#CID = "10611304_0"
-#CID = "9843569_1"
-#fitness = "C"
-#for slim in ["P","C","F"]:
-#    G_pic= path+"results/slim_"+slim+"/G_slim_"+slim+"_"+fitness
-#    G = nx.read_gpickle(G_pic)
-#    if slim == "P":
-#        G = unrelabel_G(G,slim_P_dict)
-#    elif slim == "C":
-#        G = unrelabel_G(G,slim_C_dict)
-#    elif slim == "F":
-#        G = unrelabel_G(G,slim_F_dict)
-#    dict_file = path+"results/real_"+CID+".txt"
-#    png_path = path+"results/slim_"+slim+"/real_"+CID+"/"
-#    #os.system("mkdir "+png_path)
-#    draw_dicts(G,dict_file,png_path)
-
+#draw_G(G,path+"test.png",with_labels=True)
+if slim == "P":
+    G = unrelabel_G(G,slim_P_dict)
+elif slim == "C":
+    G = unrelabel_G(G,slim_C_dict)
+elif slim == "F":
+    G = unrelabel_G(G,slim_F_dict)
+dict_file = path+"results/"+CID+".real"
+png_path = path+"results/slim_"+slim+"/real_"+CID+"/"
+os.system("mkdir "+png_path)
+draw_dicts(G,dict_file,png_path)
